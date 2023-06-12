@@ -4,8 +4,10 @@ DraggableListBoxItemData::~DraggableListBoxItemData() {};
 
 void DraggableListBoxItem::paint(Graphics& g)
 {
+   
+   
     modelData.paintContents(rowNum, g, getLocalBounds());
-
+    
     if (insertAfter)
     {
         g.setColour(Colours::red);
@@ -16,6 +18,13 @@ void DraggableListBoxItem::paint(Graphics& g)
         g.setColour(Colours::red);
         g.fillRect(0, 0, getWidth(), 3);
     }
+
+    if(listBox.isRowSelected(rowNum))
+    {
+        g.setColour(Colours::yellow);
+        g.drawRect(getLocalBounds(),5);
+    }
+ 
 }
 
 void DraggableListBoxItem::mouseEnter(const MouseEvent&)
@@ -29,12 +38,36 @@ void DraggableListBoxItem::mouseExit(const MouseEvent&)
     setMouseCursor(savedCursor);
 }
 
-void DraggableListBoxItem::mouseDrag(const MouseEvent&)
+void DraggableListBoxItem::mouseDrag(const MouseEvent &e)
 {
     if (DragAndDropContainer* container = DragAndDropContainer::findParentDragContainerFor(this))
     {
         container->startDragging("DraggableListBoxItem", this);
+        listBox.dragSelectedRows(e, rowNum, modelData.getNumItems());
     }
+}
+
+    
+void DraggableListBoxItem::mouseDragSelected(const MouseEvent &e)
+{
+    if (DragAndDropContainer* container = DragAndDropContainer::findParentDragContainerFor(this))
+    {
+        container->startDragging("DraggableListBoxItem", this);
+        //listBox.dragSelectedRows(e, rowNum, modelData.getNumItems());
+    }
+}
+void DraggableListBoxItem::mouseDown(const MouseEvent &e)
+{
+    if(e.mods.isCtrlDown())
+    {
+        listBox.selectRow(rowNum, false, false);
+    } else
+        listBox.selectRow(rowNum, false, true);
+   
+}
+void DraggableListBoxItem::mouseUp(const MouseEvent &e)
+{
+   
 }
 
 void DraggableListBoxItem::updateInsertLines(const SourceDetails &dragSourceDetails)
@@ -77,13 +110,77 @@ void DraggableListBoxItem::itemDropped(const juce::DragAndDropTarget::SourceDeta
 {
     if (DraggableListBoxItem* item = dynamic_cast<DraggableListBoxItem*>(dragSourceDetails.sourceComponent.get()))
     {
+        
         if (dragSourceDetails.localPosition.y < getHeight() / 2)
-            modelData.moveBefore(item->rowNum, rowNum);
+        {
+            //listBox.dropSelectedRows(modelData.getNumItems(), rowNum, true);
+            std::vector<int> rows;
+            for (int i = 0; i < modelData.getNumItems(); i++)
+            {
+                if(listBox.isRowSelected(i))
+                {
+                    rows.push_back(i);
+                }
+                    //dynamic_cast<DraggableListBoxItem*>(getComponentForRowNumber(i))->itemDroppedSelected( rowToDrop, before);
+            }
+//            if (rowNum == 0)
+//            {
+//                rowNum = 1;
+//            }
+            
+            int newIndex = modelData.moveToIndex(rows, rowNum);
+            listBox.deselectAllRows();
+          
+
+                listBox.selectRangeOfRows(newIndex, newIndex + rows.size()-1);
+            
+//            modelData.moveBefore(item->rowNum, rowNum);
+//            if (listBox.isRowSelected(item->rowNum))
+//            {
+//                listBox.deselectRow(item->rowNum);
+//                listBox.selectRow(rowNum - 1);
+//            }
+        }
         else
-            modelData.moveAfter(item->rowNum, rowNum);
-        listBox.updateContent();
+        {
+            //listBox.dropSelectedRows(modelData.getNumItems(), rowNum, true);
+            std::vector<int> rows;
+            for (int i = 0; i < modelData.getNumItems(); i++)
+            {
+                if(listBox.isRowSelected(i))
+                {
+                    rows.push_back(i);
+                }
+                    //dynamic_cast<DraggableListBoxItem*>(getComponentForRowNumber(i))->itemDroppedSelected( rowToDrop, before);
+            }
+            int newIndex = modelData.moveToIndex(rows, rowNum + 1);
+            listBox.deselectAllRows();
+          
+            listBox.selectRangeOfRows(newIndex, newIndex + rows.size() - 1);
+           // modelData.moveAfter(item->rowNum, rowNum, false);
+//            if (listBox.isRowSelected(item->rowNum))
+//            {
+//                listBox.deselectRow(item->rowNum);
+//                listBox.selectRow(rowNum);
+//            }
+        }
+        
     }
     hideInsertLines();
+    
+}
+void DraggableListBoxItem::itemDroppedSelected(int dropRow, bool before)
+{
+     if(before)
+        modelData.moveBefore(rowNum, dropRow);
+     else
+        modelData.moveAfter(rowNum, dropRow);
+                
+    listBox.deselectRow(rowNum);
+            
+        
+        //hideInsertLines();
+        
 }
 
 Component* DraggableListBoxModel::refreshComponentForRow(int rowNumber,

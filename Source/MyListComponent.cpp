@@ -28,8 +28,8 @@ void MyListComponent::paint (Graphics& g)
 {
     modelData.paintContents(rowNum, g, dataArea);
     DraggableListBoxItem::paint(g);
+    
 }
-
 void MyListComponent::resized()
 {
     dataArea = getLocalBounds();
