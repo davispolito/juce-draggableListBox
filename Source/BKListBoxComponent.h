@@ -5,8 +5,9 @@
 #include "../../BKLookAndFeel.h"
 #include "../../BKKeyboard.h"
 #include "../../BKKeyboardState.h"
+
 class BKListBoxComponent   : public BKComponent,
-public BKKeymapKeyboardStateListener, public BKListener
+public BKKeymapKeyboardStateListener, public BKListener, public ChangeListener
 {
 public:
     BKListBoxComponent(BKAudioProcessor &p);
@@ -14,7 +15,10 @@ public:
     {
         //used to communicate with iterator from from mainview
         p.updateState->iteratorViewActive = false;
+        
     }
+    
+    void changeListenerCallback(ChangeBroadcaster *source) override;
     
     void paint (Graphics&) override;
     void resized() override;

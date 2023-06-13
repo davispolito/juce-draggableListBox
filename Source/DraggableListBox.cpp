@@ -62,7 +62,10 @@ void DraggableListBoxItem::mouseDown(const MouseEvent &e)
     {
         listBox.selectRow(rowNum, false, false);
     } else
+    {
         listBox.selectRow(rowNum, false, true);
+        listBox.sendChangeMessage();
+    }
    
 }
 void DraggableListBoxItem::mouseUp(const MouseEvent &e)

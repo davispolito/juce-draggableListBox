@@ -1,11 +1,12 @@
 #include "BKListBoxComponent.h"
-
+#include "../../PluginEditor.h"
 BKListBoxComponent::BKListBoxComponent(BKAudioProcessor &p)
     : p(p),
  itemData(p.gallery->getPianoIteratorOrder()),
     listBoxModel(listBox, itemData)
 {
-    
+   // listBoxModel.addChangeListener(&listBox);
+    listBox.addChangeListener(this);
     wrapperType = p.wrapperType;
    // itemData = p.gallery->getPianoIteratorOrder();
     addBtn.setButtonText("Add Item...");
@@ -172,7 +173,7 @@ void BKListBoxComponent::pianoOptionMenuCallback(int res, BKListBoxComponent* bk
     
     BKAudioProcessor& processor = bkl->p;
     
-    bkl->itemData.modelData.push_back( processor.gallery->getPianos().getUnchecked(res-1));
+    bkl->itemData.modelData.push_back( processor.gallery->getPianos()[res-1]);
     bkl->listBox.updateContent();
 //    processor.gallery->setPianoIteratorOrder(bkl->itemData.modelData);
 }
@@ -228,4 +229,16 @@ void BKListBoxComponent::handleKeymapNoteToggled (BKKeymapKeyboardState* source,
     p.updateState->editsMade = true;
     
     
+}
+void BKListBoxComponent::changeListenerCallback(ChangeBroadcaster *source) 
+{
+    p.setCurrentPiano(itemData.modelData[listBox.getSelectedRow()]->getId());
+    p.gallery->currentPianoIndex = listBox.getSelectedRow();
+    p.updateState->currentIteratorPiano = listBox.getSelectedRow();
+    
+    p.getBKEditor()->getMainViewController().fillPianoCB();
+
+    //update();
+    
+    p.saveGalleryToHistory("Change Piano");
 }

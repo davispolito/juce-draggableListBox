@@ -21,7 +21,6 @@ MyListComponent::MyListComponent(DraggableListBox& lb, MyListBoxItemData& data, 
 
 MyListComponent::~MyListComponent()
 {
-    
 }
 
 void MyListComponent::paint (Graphics& g)

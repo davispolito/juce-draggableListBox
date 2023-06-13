@@ -269,6 +269,7 @@ public:
 
     void paint(Graphics&) override;
     void resized() override;
+   
 protected:
     Rectangle<int> dataArea;
     TextButton actionBtn, deleteBtn;
@@ -284,6 +285,7 @@ class MyListBoxModel : public DraggableListBoxModel
 public:
     MyListBoxModel(DraggableListBox& lb, DraggableListBoxItemData& md)
         : DraggableListBoxModel(lb, md) {}
+
     //actually gets called
     Component* refreshComponentForRow(int, bool, Component*) override;
     

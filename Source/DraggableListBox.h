@@ -65,9 +65,8 @@ public:
 
     int getNumRows() override { return modelData.getNumItems(); }
     void paintListBoxItem(int, Graphics &, int, int, bool) override {}
-//    void listBoxItemClicked (int, const MouseEvent&) override {
-//        return;
-//    }
+    
+    
     Component* refreshComponentForRow(int, bool, Component*) override;
     
 protected:
@@ -81,9 +80,13 @@ protected:
 
 // DraggableListBox is basically just a ListBox, that inherits from DragAndDropContainer.
 // Declare your list box using this type.
-class DraggableListBox : public ListBox, public DragAndDropContainer
+class DraggableListBox : public ListBox, public DragAndDropContainer, public ChangeBroadcaster
 {
 public:
+    ~DraggableListBox()
+    {
+        removeAllChangeListeners();
+    }
     void dragSelectedRows(const MouseEvent &e, int rowNum, int numRows)
     {
         //SparseSet<int> rows = getSelectedRows();
@@ -94,6 +97,8 @@ public:
         }
        
     }
+    
+    
     
     void dropSelectedRows( int numRows, int rowToDrop, bool before)
     {
